@@ -11,4 +11,5 @@
 *.doc
 *.docx
 *.xls
-
+.DS_Store
+.Rapp.history

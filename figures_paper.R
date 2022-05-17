@@ -61,7 +61,7 @@ ggsave(
 
 dat <- googlesheets4::read_sheet(
     ss = "https://docs.google.com/spreadsheets/d/1l_KVmONg3L0vmfPQnIdjPaanRDVNIw70AShl8kwuHQ0/edit#gid=141907550",
-    sheet = 2
+    sheet = 3
 )
 
 dat <- dat |> 
@@ -97,7 +97,8 @@ starfish <- tibble(
     safe = rnorm(7, mean = 0.75, sd = 0.05),
     just_access = rnorm(7, mean = 0.25, sd = 0.05),
     just_harm = rnorm(7, mean = 0.75, sd = 0.05),
-    names = dat$domain |> unique()
+    names = c("Climate", "Biodiversity", "Nitrogen", "Phosphorus", "NOx", "SO2", "Water")
+        #dat$domain |> unique()
 )
 
 small_df <- starfish |> select(-min, -max) |> 
@@ -125,19 +126,19 @@ a <- starfish |>
     geom_errorbar(data = small_df,
                   aes(names, value, color = class, ymin = value-0.05, ymax = value+0.05),
                   size = 0.2, width = 0.1) +
-    #coord_polar() +
+    coord_polar() +
     scale_fill_manual(
         "Space", values = c("grey60", "green", "grey40"), labels = c("Unjust with future generations", "Safe and necessary but\n not sufficient for justice", "Unjust with present generations")) +
     scale_color_manual(
         "Boundaries", 
         labels = c("Safe", "Just: minimum universal access", "Just: no significant harm"), 
         values = c("blue", "orange", "purple")) +
-    labs(tag = "A") +
+    #labs(tag = "A") +
     theme_classic(base_size = 8) +
     theme(
         axis.text.y = element_blank(), axis.ticks = element_blank(),
         axis.title = element_blank(), axis.line = element_blank(),
-        axis.text.x = element_text(angle = 90, hjust = 1)
+        axis.text.x = element_text(angle = 0, hjust = 1)
     )
 
 ## Fig b
@@ -147,7 +148,7 @@ nocorridor <- tibble(
     safe = rnorm(7, mean = 0.25, sd = 0.05),
     just_access = rnorm(7, mean = 0.75, sd = 0.05),
     just_harm = rnorm(7, mean = 0.25, sd = 0.05),
-    names = dat$domain |> unique()
+    names = c("Climate change", "Biodiversity", "Nitrogen", "Phosphorus", "NOx", "SO2", "Water") #dat$domain |> unique()
 )
 
 small_df2 <- nocorridor |> select(-min, -max) |> 
@@ -175,25 +176,25 @@ b <- nocorridor |>
     geom_errorbar(data = small_df2,
                   aes(names, value, color = class, ymin = value-0.05, ymax = value+0.05),
                   size = 0.2, width = 0.1) +
-    #coord_polar() +
+    coord_polar() +
     scale_fill_manual(
         "Space", values = c("grey60", "green", "grey40"), labels = c("Unjust with future generations", "Safe and necessary but\n not sufficient for justice", "Unjust with present generations")) +
     scale_color_manual(
         "Boundaries", 
         labels = c("Safe", "Just: minimum universal access", "Just: no significant harm"), 
         values = c("blue", "orange", "purple")) +
-    labs(tag = "B") + 
+    #labs(tag = "B") + 
     theme_classic(base_size = 8) +
     theme(
         axis.text.y = element_blank(), axis.ticks = element_blank(),
         axis.title = element_blank(), axis.line = element_blank(),
-        axis.text.x = element_text(angle = 90, hjust = 1)
+        axis.text.x = element_text(angle = 0, hjust = 1)
     )
 
-a + b + plot_layout(guide = "collect")
+b + a + plot_layout(guide = "collect")
 
 ggsave(
-    filename = "conceptual_fig_equilizer.png",
+    filename = "conceptual_fig.png",
     plot = last_plot(),
     path = "figures/",
     device = "png",
