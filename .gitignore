@@ -13,3 +13,6 @@
 *.xls
 .DS_Store
 .Rapp.history
+*.tif
+*.asc
+*.RData
