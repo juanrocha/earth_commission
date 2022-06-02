@@ -381,7 +381,7 @@ bio3 <- bio3$`ebv_cube_entity=1_12` # 12 time slice which is 2020
 
 
 tic()
-bio_df <- terra::extract(bio3, vect(povsn), fun = mean, na.rm = TRUE)
+bio_df <- terra::extract(bio, vect(povsn), fun = mean, na.rm = TRUE)
 toc() #44 sec elapsed
 
 

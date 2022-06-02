@@ -17,16 +17,16 @@ load(file = "data/subnational_hdi_vars.RData") # 557Mb
 #### Water ####
 tic()
 povsn <- povsn |> 
-    mutate(risk_volinv = risk_volume * -1) 
+    mutate(mean_intrvs = mean_integrity * -1) 
 toc()
 
 povsn <- bi_class(
     povsn, x = GSAP2_poor, #x = GSAP2_poor, 
-    y = mean_integrity, dim = 3)
+    y = N_surplus, dim = 3)
 
 leg <- bi_legend(
     pal = "DkViolet", dim = 3, # "DkViolet"
-    xlab = "Poverty", ylab = "Mean Integrity",
+    xlab = "Poverty", ylab = "Mean N surplus",
     flip_axes = FALSE, rotate_pal = FALSE) +
     bi_theme(base_family = "Helvetica", base_size = 4)
 leg
@@ -42,7 +42,7 @@ ggsave(
         grob = ggplotGrob(leg), 
         xmin = -180, ymin = -50, xmax = -90, ymax = 0) +
     theme_void(base_size = 6)) ,
-    filename = "B_integrity_poverty.png", path = "figures/", 
+    filename = "N_surplus_poverty.png", path = "figures/", 
     device = "png", width = 6, height = 4, dpi = 400, bg = "white")
 toc() #20s
 
@@ -89,14 +89,14 @@ hdi_shp <- hdi_shp |>
            shdinv = shdi * -1)
 toc()
 
-hdi_shp <- bi_class(hdi_shp, x = shdinv, y = mean_integrity, dim = 3)
+hdi_shp <- bi_class(hdi_shp, x = shdinv, y = P.concentration, dim = 3)
 
 # bi_pal(pal = "GrPink", dim = 3, preview = T, rotate_pal = F, flip_axes = F) 
 
 leg <- bi_legend(
     pal = "GrPink", dim = 3, 
-    xlab = "Human Development Index", ylab = "Mean Integrity",
-    flip_axes = T, rotate_pal = F) +
+    xlab = "Human Development Index", ylab = "Mean P concentration",
+    flip_axes = F, rotate_pal = F) +
     ## I need the legend without the arrows
     labs(x = "Human Development Index", y = "Mean Integrity") +
     bi_theme(base_family = "Helvetica", base_size = 4)
@@ -113,7 +113,7 @@ ggsave(
                     grob = ggplotGrob(leg), 
                     xmin = -180, ymin = -50, xmax = -90, ymax = 0) +
                 theme_void(base_size = 6)),
-    filename = "b_integrity_hdi.png", path = "figures/", 
+    filename = "P_concentration_hdi.png", path = "figures/", 
     device = "png", width = 6, height = 4, dpi = 400, bg = "white")
 toc() #49s
 

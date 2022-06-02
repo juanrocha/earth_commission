@@ -1,3 +1,7 @@
+## This scripts takes raster files from the different quantifications for safe dimensions and 
+## intersect them with povert and HDI datasets. Once saved, summary variables are part of the poverty
+## and HDI objects in vector format.
+
 library(tidyverse)
 library(fs)
 library(sf)
@@ -42,33 +46,32 @@ povsn <- povsn |>
 rm(ars)
 
 #### Biodiversity ####
-# % of species left 0.25deg
-fls <-  "~/Documents/Projects/DATA/Biodiversity/PREDICTS/purvis_comcom_id6_20220208_v1_4d.nc"
-fls <- "~/Documents/Projects/DATA/EC_additional_datasets/hummod_3-1.tif"
-fls <- dir_ls(
-    path = "~/Documents/Projects/DATA/EC_additional_datasets/integrity/", 
-    recurse = TRUE)
+bio_wl <- rast("data/working_lands_025degree.tif")
+bio_nl <- rast("data/all_integrity_025degree.tif")
 
-fls <- fls |> str_subset(pattern = ".tif")
+bio_wl
+bio_nl #<- project(x = bio_nl, y = bio_wl)
 
-bio <- terra::rast(fls)
-#bio3 <- bio3$`ebv_cube_entity=1_12` # 12 time slice which is 2020
-# ## I need to change the CRS to WGS84 == "epsg:4326"
+bio_comb <- min(bio_wl, bio_nl, na.rm = T)
+plot(bio_comb)
+
+# #bio3 <- bio3$`ebv_cube_entity=1_12` # 12 time slice which is 2020
+# # ## I need to change the CRS to WGS84 == "epsg:4326"
+# tic()
+# bio2 <- project(bio, crs(povsn), method = "bilinear", filename = "data/hummod_projected.tif")
+# toc() ## this takes over an hour
+# cat(crs(bio2))
+
 tic()
-bio2 <- project(bio, crs(povsn), method = "bilinear", filename = "data/hummod_projected.tif")
-toc() ## this takes over an hour
-cat(crs(bio2))
-
-tic()
-bio_df <- terra::extract(bio, vect(povsn), fun = mean, na.rm = TRUE)
+bio_df <- terra::extract(bio_comb, vect(povsn), fun = mean, na.rm = TRUE)
 toc() #44 sec elapsed
 
 
-povsn <- povsn |> 
+povsn <- povsn |>
     mutate(ID = row_number()) |> 
     left_join(bio_df |> rename(mean_integrity = Map_mean))
 
-rm(bio3)
+# rm(bio3)
 
 #### Water ####
 wtr <- rast("~/Documents/Projects/DATA/EC_additional_datasets/RiskMapVolume-1.tif")
@@ -82,43 +85,74 @@ povsn <- povsn |>
     left_join(wtr_df |> rename(risk_volume = RiskMapVolume.1))
 
 
-
 ## Number of months per year outside the 20% boundary: aggregate average number of months outside the boundary per year
 estress <- rast("~/Documents/Projects/DATA/EC_additional_datasets/Estress_WBM_TerraClimate_2000-2020_LTM_estress_chg20.tif")
 
 tic()
 est_df <- terra::extract(estress, vect(povsn), fun = mean, na.rm = TRUE)
-toc() 
+toc() # 20s
 
 povsn <- povsn |> 
     mutate(ID = row_number()) |> 
     left_join(est_df |> rename(num_months = Estress_WBM_TerraClimate_2000.2020_LTM_estress_chg20))
 
+
+
 #### Nutrients ####
 ## Nitrogen
-nut <- rast("~/Documents/Projects/DATA/EC_additional_datasets/nsur_all_perha_ag.asc")
+nut <- rast("~/Documents/Projects/DATA/EC_additional_datasets/exc_nsur_crit_mi_all_ph.asc")
 class(nut)
 nut
 
 tic()
 nut_df <- terra::extract(nut, vect(povsn), fun = mean, na.rm = TRUE)
-toc() 
+toc()  # 26s
+
+head(nut_df)
 
 povsn <- povsn |> 
     mutate(ID = row_number()) |> 
-    left_join(nut_df |> rename(N_surplus = nsur_all_perha_ag))
+    left_join(nut_df |> rename(N_surplus = exc_nsur_crit_mi_all_ph))
+
 
 ## Phosphorous
-p <- rast("~/Documents/Projects/DATA/EC_additional_datasets/MekonnenPdischarge.tif")
-p
+# p <- rast("~/Documents/Projects/DATA/EC_additional_datasets/MekonnenPdischarge.tif")
+# p
+#load(file= "~/Documents/Projects/DATA/EC_additional_datasets/P_load.RData")
+p <- rast("~/Documents/Projects/DATA/EC_additional_datasets/MH2018_Pconcn_runoffcutoff5_concngt100k.nc")
 
 tic()
 p_df <- terra::extract(p, vect(povsn), fun = mean, na.rm = TRUE)
-toc() 
+toc() #22s
+
+head(p_df)
 
 povsn <- povsn |> 
     mutate(ID = row_number()) |> 
-    left_join(p_df |> rename(P_surplus = MekonnenPdischarge))
+    left_join(p_df )
+
+#### climate ####
+wet1 <- rast("~/Documents/Projects/DATA/EC_additional_datasets/max_daily_tw_onepoint2_degrees.tif") 
+wet2 <- rast("~/Documents/Projects/DATA/EC_additional_datasets/max_daily_tw_two_degrees.tif")
+#first rotate to make sure they are equally centered as povsn
+wet1 <- rotate(wet1)
+wet2 <- rotate(wet2)
+
+tic()
+wet_df <- terra::extract(wet1, vect(povsn), fun = mean, na.rm = TRUE)
+toc() #31 sec elapsed
+
+povsn <- povsn |> 
+    mutate(ID = row_number()) |> 
+    left_join(wet_df |> rename(max_t1_2 = max_daily_tw_onepoint2_degrees))
+
+tic()
+wet_df <- terra::extract(wet2, vect(povsn), fun = mean, na.rm = TRUE)
+toc() #44 sec elapsed
+
+povsn <- povsn |> 
+    mutate(ID = row_number()) |> 
+    left_join(wet_df |> rename(max_t2 = max_daily_tw_two_degrees))
 
 
 #### Population ####
@@ -173,15 +207,9 @@ hdi_shp <- hdi_shp |>
 rm(ars)
 
 #### Biodiversity ####
-# % of species left 0.25deg
-fls <-  "~/Documents/Projects/DATA/Biodiversity/PREDICTS/purvis_comcom_id6_20220208_v1_4d.nc"
-
-bio3 <- terra::rast(fls)
-bio3 <- bio3$`ebv_cube_entity=1_12` # 12 time slice which is 2020
-
 
 tic()
-bio_df <- terra::extract(bio3, vect(hdi_shp), fun = mean, na.rm = TRUE)
+bio_df <- terra::extract(bio_comb, vect(hdi_shp), fun = mean, na.rm = TRUE)
 toc() #44 sec elapsed
 
 
@@ -189,14 +217,12 @@ hdi_shp <- hdi_shp |>
     mutate(ID = row_number()) |> 
     left_join(bio_df |> rename(mean_integrity = Map_mean))
 
-rm(bio3)
-
 #### Water ####
-wtr <- rast("~/Documents/Projects/DATA/EC_additional_datasets/RiskMapVolume-1.tif")
+#wtr <- rast("~/Documents/Projects/DATA/EC_additional_datasets/RiskMapVolume-1.tif")
 
 tic()
 wtr_df <- terra::extract(wtr, vect(hdi_shp), fun = mean, na.rm = TRUE)
-toc() #24 sec elapsed
+toc() #42 sec elapsed
 
 
 hdi_shp <- hdi_shp |> 
@@ -211,6 +237,45 @@ hdi_shp <- hdi_shp |>
     mutate(ID = row_number()) |> 
     left_join(est_df |> rename(num_months = Estress_WBM_TerraClimate_2000.2020_LTM_estress_chg20))
 
-save(hdi_shp, file = 'data/subnational_hdi_vars.RData')
+#### Nutrients ####
+## phosphorous
+tic()
+p_df <- terra::extract(p, vect(hdi_shp), fun = mean, na.rm = TRUE)
+toc() #45s
 
+hdi_shp <- hdi_shp |> 
+    mutate(ID = row_number()) |> 
+    left_join(p_df)
+## nitrogen
+tic()
+nut_df <- terra::extract(nut, vect(hdi_shp), fun = mean, na.rm = TRUE)
+toc()  # 45s
+
+head(nut_df)
+
+hdi_shp <- hdi_shp |> 
+    mutate(ID = row_number()) |> 
+    left_join(nut_df |> rename(N_surplus = exc_nsur_crit_mi_all_ph))
+
+#### climate ####
+
+
+tic()
+wet_df <- terra::extract(wet1, vect(hdi_shp), fun = mean, na.rm = TRUE)
+toc() #52 sec elapsed
+
+hdi_shp <- hdi_shp |> 
+    mutate(ID = row_number()) |> 
+    left_join(wet_df |> rename(max_t1_2 = max_daily_tw_onepoint2_degrees))
+
+tic()
+wet_df <- terra::extract(wet2, vect(hdi_shp), fun = mean, na.rm = TRUE)
+toc() #44 sec elapsed
+
+hdi_shp <- hdi_shp |> 
+    mutate(ID = row_number()) |> 
+    left_join(wet_df |> rename(max_t2 = max_daily_tw_two_degrees))
+
+
+save(hdi_shp, file = 'data/subnational_hdi_vars.RData')
 
