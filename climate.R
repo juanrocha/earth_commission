@@ -273,13 +273,13 @@ ggsave(
             plot_layout(nrow = 2, ncol = 2, byrow = TRUE)
     ) ,
     filename = "just_climate_temp_a.png", path = "figures/", 
-    device = "png", width = 7, height = 4, dpi = 400, bg = "white")
+    device = "png", width = 7, height = 3.5, dpi = 400, bg = "white")
 toc() #204s
 
 ggsave(
-    ga+gb +fa+fb + plot_layout(widths = 1),
+    ga+gb +fa+fb + plot_layout(nrow = 1, ncol = 4, byrow = TRUE),
     filename = "just_climate_temp_b.png", path = "figures/", 
-    device = "png", width = 7, height = 1, dpi = 400, bg = "white"
+    device = "png", width = 7, height = 1.5, dpi = 400, bg = "white"
 )
 
 ## Exposed people to MAT > 29C
