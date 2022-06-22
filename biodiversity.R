@@ -40,17 +40,17 @@ bio_df <- as.data.frame(bio_comb, xy=TRUE) |> as_tibble() |>
 
 tic()
 ggsave(
-    (ggplot() +
-        geom_spatraster(data = bio_nl) +
-        geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
-        scale_fill_viridis_c(
-            "Integrity natural lands",option = "D", direction = -1, na.value = "white",
-            guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
-                                   barheight = unit(2,"mm"))) +
-        labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
-        theme_void(base_size = 6) +
-        theme(legend.position = c(0.11, 0.1),
-              legend.direction = "horizontal")) +
+    # (ggplot() +
+    #     geom_spatraster(data = bio_nl) +
+    #     geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    #     scale_fill_viridis_c(
+    #         "Integrity natural lands",option = "D", direction = -1, na.value = "white",
+    #         guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
+    #                                barheight = unit(2,"mm"))) +
+    #     labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
+    #     theme_void(base_size = 6) +
+    #     theme(legend.position = c(0.11, 0.1),
+    #           legend.direction = "horizontal")) +
     (ggplot() +
          geom_spatraster(data = bio_wl) +
          geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
@@ -58,13 +58,14 @@ ggsave(
              "Integrity working lands",option = "D", direction = -1, na.value = "white",
              guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
                                     barheight = unit(2,"mm"))) +
-         labs(tag = "B") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
+         #labs(tag = "B") + 
+         lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
          theme_void(base_size = 6) +
          theme(legend.position = c(0.11, 0.1),
-               legend.direction = "horizontal")) +
-        plot_layout(nrow = 1, ncol = 2),
+               legend.direction = "horizontal")),
+        #plot_layout(nrow = 1, ncol = 2),
     filename = "safe_biodiversity.png", path = "figures/", 
-    device = "png", width = 7, height = 2, dpi = 400, bg = "white"
+    device = "png", width = 7, height = 3, dpi = 400, bg = "white"
 )
 toc() #5.1s
 
@@ -93,7 +94,7 @@ da <- world |>
     ggplot(aes(people, name_long)) +
     geom_col() + 
     scale_x_continuous(n.breaks = 3) +
-    labs(tag = "D", x = "People living with > 20% integrity", y = "") +
+    labs(tag = "D", x = "People living with < 20% integrity", y = "") +
     theme_minimal(base_size = 5)
 
 db <-  world |> 

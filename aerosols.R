@@ -122,9 +122,13 @@ db <-  world |>
     labs(tag = "E", x = "Proportion of population", y = "") +
     theme_minimal(base_size = 6)
 
-d <- da+db
+d <- da/db
 
 ## ensamble
+lyt <- '
+AAAD
+BBBD
+CCCD'
 
 tic()
 ggsave(
@@ -172,10 +176,10 @@ ggsave(
                  labs(tag = "C") +
                  theme_void(base_size = 6))) +
             (d) +
-            plot_layout(ncol = 2, nrow = 2, byrow = TRUE)
+            plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
     filename = "just_aerosols.png", path = "figures/", 
-    device = "png", width = 7, height = 4, dpi = 400, bg = "white")
+    device = "png", width = 6, height = 5, dpi = 400, bg = "white")
 toc() #90s
 
 
