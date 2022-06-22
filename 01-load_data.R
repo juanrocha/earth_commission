@@ -13,8 +13,16 @@ library(biscale)
 library(tictoc)
 library(tidync)
 library(raster)
-# library(future)
-# library(furrr)
+library(tidyterra)
+
+## In case of making corrections to specific variables, load the processed dataset
+## remove the problematic column
+## re-run the relevant chunk of code
+## re-save the object
+## Datasets
+load("data/subnational_poverty_vars.RData")
+load("data/subnational_hdi_vars.RData")
+
 
 #### Subnational poverty:  world bank ####
 povsn <- st_read("~/Documents/Projects/DATA/WorldBank/gsap-maps/GSAP2.shp")
@@ -74,15 +82,17 @@ povsn <- povsn |>
 # rm(bio3)
 
 #### Water ####
-wtr <- rast("~/Documents/Projects/DATA/EC_additional_datasets/RiskMapVolume-1.tif")
+wtr <- rast("~/Documents/Projects/DATA/EC_additional_datasets/RiskMap_13 May 2022.tif")
 # cubic km
 tic()
 wtr_df <- terra::extract(wtr, vect(povsn), fun = mean, na.rm = TRUE)
 toc() #24 sec elapsed
 
+povsn <- povsn |> select(-risk_volume)
+
 povsn <- povsn |> 
     mutate(ID = row_number()) |> 
-    left_join(wtr_df |> rename(risk_volume = RiskMapVolume.1))
+    left_join(wtr_df |> rename(risk_volume = RiskMap_13.May.2022))
 
 
 ## Number of months per year outside the 20% boundary: aggregate average number of months outside the boundary per year
@@ -118,8 +128,8 @@ povsn <- povsn |>
 ## Phosphorous
 # p <- rast("~/Documents/Projects/DATA/EC_additional_datasets/MekonnenPdischarge.tif")
 # p
-#load(file= "~/Documents/Projects/DATA/EC_additional_datasets/P_load.RData")
-p <- rast("~/Documents/Projects/DATA/EC_additional_datasets/MH2018_Pconcn_runoffcutoff5_concngt100k.nc")
+#load(file= "~/Documents/Projects/DATA/EC_additional_datasets/P_concn_plot.RData"
+p <- rast("~/Documents/Projects/DATA/EC_additional_datasets/MH2018_Pconcn_runoffcutoff5_concngt10k.nc")
 
 tic()
 p_df <- terra::extract(p, vect(povsn), fun = mean, na.rm = TRUE)
@@ -156,11 +166,29 @@ povsn <- povsn |>
 
 
 #### Population ####
+# J220609: population needs to be corrected, it is density (people per Km2) so it needs to be 
+# multiplied by area
+pop <- rast("~/Documents/Projects/DATA/Population_density_NASA/gpw-v4-population-density-rev11_2020_15_min_tif/gpw_v4_population_density_rev11_2020_15_min.tif")
 
-pop <- rast("~/Documents/Projects/DATA/Population_density_NASA/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-rev11_2000_15_min_tif/gpw_v4_population_density_adjusted_to_2015_unwpp_country_totals_rev11_2000_15_min.tif")
+area <- cellSize(pop, unit = "km")
+
+pop_adj <- pop * area
 
 # change the projection of the poverty data to the same as population:
 #povsn <- st_transform(povsn, crs = st_crs(pop))
+ggplot() +
+    geom_spatraster(data = pop_adj) +
+    scale_fill_viridis_c(
+        "Population", option = "D", trans = "log1p", na.value = "white",
+        guide = guide_colorbar(title.position = "top", barwidth = unit(1,"mm"), 
+                               barheight = unit(15,"mm"))) +
+    lims(y = c(-55.9, 83.2)) +
+    theme_void(base_size = 4) +
+    theme(legend.position = c(0.2, 0.35),
+          legend.direction = "vertical")
+
+ggsave(last_plot(), filename = "figures/population.png", device = "png", width = 3.5, height = 2,
+       dpi = 300, bg = "white")
 
 st_crs(povsn)
 
@@ -173,13 +201,18 @@ st_crs(povsn)
 # pop_wgs84 <- rast("pop_wgs84_220429.tif")
 
 tic()
-pop_df <- terra::extract(pop, vect(povsn), fun = sum, na.rm = TRUE)
+pop_df <- terra::extract(pop_adj, vect(povsn), fun = sum, na.rm = TRUE)
 toc() #84s/ 9846.044 Error: vector memory exhausted (limit reached?)
+
+head(pop_df)
 
 povsn <- povsn |> 
     mutate(ID = row_number()) |> 
-    left_join(pop_df |> rename(population = gpw_v4_population_density_adjusted_to_2015_unwpp_country_totals_rev11_2000_15_min ))
+    left_join(pop_df |> rename(population =gpw_v4_population_density_rev11_2020_15_min ))
 
+
+povsn <- povsn |>
+    mutate(poplog = log1p(population))
 
 save(povsn, file = 'data/subnational_poverty_vars.RData')
 
@@ -224,10 +257,11 @@ tic()
 wtr_df <- terra::extract(wtr, vect(hdi_shp), fun = mean, na.rm = TRUE)
 toc() #42 sec elapsed
 
+hdi_shp <- hdi_shp |> select(-risk_volume)
 
 hdi_shp <- hdi_shp |> 
     mutate(ID = row_number()) |> 
-    left_join(wtr_df |> rename(risk_volume = RiskMapVolume.1))
+    left_join(wtr_df |> rename(risk_volume = RiskMap_13.May.2022))
 
 tic()
 est_df <- terra::extract(estress, vect(hdi_shp), fun = mean, na.rm = TRUE)
