@@ -78,25 +78,20 @@ breaksB
 
 ## test individual variables
 tic()
-ggplot() +
+ggsave(plot = (ggplot() +
     geom_spatraster(data = wtr) +
     geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
-    # scale_fill_viridis_c(
-    #     "Risk volume",option = "D", direction = 1, na.value = "white",
-    #     guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"),
-    #                            barheight = unit(2,"mm"))) +
-    # scale_fill_gradient2(
-    #     "Risk volume",  na.value = "white", midpoint = 0,
-    #     guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"),
-    #                            barheight = unit(2,"mm"))) +
     scico::scale_fill_scico(
-        "Risk volume",  na.value = "white", midpoint = 0, palette = "vik",
+        "Trend in ground\nwater depth",  na.value = "white", midpoint = 0, palette = "vikO", direction =-1,
         guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"),
                                barheight = unit(2,"mm"))) +
-    labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
+    #labs(tag = "B") + 
+    lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
     theme_void(base_size = 6) +
-    theme(legend.position = c(0.11, 0.1),
-          legend.direction = "horizontal")
+    theme(legend.position = c(0.15, 0.15),
+          legend.direction = "horizontal")),
+    filename = "ground_water_depth.png", path = "figures/", 
+    device = "png", width = 6, height = 3, dpi = 400, bg = "white")
 toc() #3s
 
 ggplot() +
@@ -112,17 +107,21 @@ ggplot() +
     theme(legend.position = c(0.11, 0.1),
           legend.direction = "horizontal")
 
-ggplot() +
-    geom_sf(data = est, aes(color = PointSampl)) +
-    scale_color_viridis_c(
+
+ggsave(plot = (ggplot() +
+    geom_sf(data = est, aes(fill = PointSampl), size = 0.01, color = "white") +
+    scale_fill_viridis_c(
         "Number of months with\n +/-20% flow alteration",option = "D", direction = 1, na.value = "white",
         guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
                                barheight = unit(2,"mm"))) +
     geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
-    labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
+    #labs(tag = "A") + 
+    lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
     theme_void(base_size = 6)+
     theme(legend.position = c(0.11, 0.1),
-          legend.direction = "horizontal")
+          legend.direction = "horizontal") ),
+    filename = "water_flow_alteration.png", path = "figures/", 
+           device = "png", width = 6, height = 3, dpi = 400, bg = "white")
 
 ## Combine them all
 tic()
@@ -217,6 +216,83 @@ ggsave(
     filename = "just_water.png", path = "figures/", 
     device = "png", width = 7, height = 6, dpi = 400, bg = "white")
 toc() #209s
+
+## Ben wants smaller panels
+ggsave(
+    plot = (povsn |> 
+                ggplot() +
+                geom_sf(aes(fill = bi_poverty2), size = 0.01, color = "white", show.legend = FALSE) +
+                bi_scale_fill(pal = "DkViolet2", dim = 4) +
+                annotation_custom(
+                    grob = ggplotGrob(
+                        bi_legend(
+                            pal = "DkViolet2", dim = 4, arrows = FALSE, breaks = breaksE,
+                            xlab = "Poverty", ylab = "Months with +/-20% flow",
+                            flip_axes = FALSE, rotate_pal = FALSE, size =6) +
+                            theme(plot.margin = unit(rep(1,4),"mm"))
+                    ), 
+                    xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
+                #labs(tag = "E") +
+                theme_void(base_size = 8)) +
+        (povsn |> 
+             ggplot() +
+             geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
+             bi_scale_fill(pal = "DkViolet2", dim = 4) +
+             annotation_custom(
+                 grob = ggplotGrob(
+                     bi_legend(
+                         pal = "DkViolet2", dim = 4, arrows = FALSE, breaks = breaksA,
+                         xlab = "Poverty", ylab = "Trend in ground\nwater depth",
+                         flip_axes = FALSE, rotate_pal = FALSE, size = 6) +
+                         theme(plot.margin = unit(rep(1,4),"mm"))
+                 ), 
+                 xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
+             #labs(tag = "F") +
+             theme_void(base_size = 8)) +
+        plot_annotation(tag_levels = "A") +
+        plot_layout(nrow = 2, ncol = 1, byrow = TRUE),
+    filename = "just_water_poverty.png", path = "figures/", 
+    device = "png", width = 7, height = 6, dpi = 400, bg = "white")
+
+ggsave(
+    plot = (povsn |> 
+                ggplot() +
+                geom_sf(aes(fill = bi_pop2), size = 0.01, color = "white", show.legend = FALSE) +
+                bi_scale_fill(pal = "BlueOr", dim = 4) +
+                annotation_custom(
+                    grob = ggplotGrob(
+                        bi_legend(
+                            pal = "BlueOr", dim = 4, arrows = FALSE, breaks = breaksD,
+                            xlab = "Population [log]", ylab = "Months with +/-20% flow",
+                            flip_axes = FALSE, rotate_pal = FALSE, size =6) +
+                            theme(plot.margin = unit(rep(1,4),"mm"))
+                    ), 
+                    xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
+                #labs(tag = "C") +
+                theme_void(base_size = 8)) +
+        (povsn |> 
+             ggplot() +
+             geom_sf(aes(fill = bi_pop), size = 0.01, color = "white", show.legend = FALSE) +
+             bi_scale_fill(pal = "BlueOr", dim = 4) +
+             annotation_custom(
+                 grob = ggplotGrob(
+                     bi_legend(
+                         pal = "BlueOr", dim = 4,  arrows = FALSE, breaks = breaksB,
+                         xlab = "Population [log]", ylab = "Trend in ground\nwater depth",
+                         flip_axes = FALSE, rotate_pal = FALSE, size =6) +
+                         theme(plot.margin = unit(rep(1,4),"mm"))
+                 ), 
+                 xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
+            # labs(tag = "D") +
+             theme_void(base_size = 8))  +
+        plot_annotation(tag_levels = "A") +
+        plot_layout(nrow = 2, ncol = 1, byrow = TRUE),
+    filename = "just_water_exposure.png", path = "figures/", 
+    device = "png", width = 7, height = 6, dpi = 400, bg = "white")
+
+
+
+
 
 
 
