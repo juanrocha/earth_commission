@@ -129,7 +129,10 @@ breaksA$bi_y[1] <- -1 * breaksA$bi_y[1]
 
 breaksB$bi_x <- c(-400, -9, 3, 30, 400) # correcting manually
 
-
+lyt <- '
+AAAD
+BBBD
+CCCD'
 
 tic()
 ggsave(
@@ -177,11 +180,11 @@ ggsave(
                      xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
                  labs(tag = "C") +
                  theme_void(base_size = 6)) +
-            (ba + bb) +
-            plot_layout(nrow = 2, ncol = 2)
+            (ba / bb) +
+            plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
     filename = "just_nitrogen.png", path = "figures/", 
-    device = "png", width = 7, height = 4, dpi = 400, bg = "white")
+    device = "png", width = 6, height = 5, dpi = 400, bg = "white")
 toc() #23s
 
 
@@ -309,11 +312,11 @@ ggsave(
                      xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
                  labs(tag = "C") +
                  theme_void(base_size = 6)) +
-            (ba+bb) +
-            plot_layout(nrow = 2, ncol = 2)
+            (ba/bb) +
+            plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
     filename = "just_phosphorous.png", path = "figures/", 
-    device = "png", width = 7, height = 4, dpi = 400, bg = "white")
+    device = "png", width = 6, height = 5, dpi = 400, bg = "white")
 toc() #87s
 
 
