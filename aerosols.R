@@ -48,7 +48,7 @@ ggplot() +
     #     guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
     #                            barheight = unit(2,"mm"))) +
     scale_fill_viridis_c(
-        "PPM 2.5",option = "D", direction = 1, na.value = "white",
+        expression(PM[2.5]),option = "D", direction = 1, na.value = "white",
         guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
                                barheight = unit(2,"mm"))) +
     labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
@@ -137,7 +137,7 @@ ggsave(
              geom_spatraster(data = ars) +
              geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
              scale_fill_viridis_c(
-                 "PPM 2.5",option = "D", direction = 1, na.value = "white",
+                 expression(PM[2.5]),option = "D", direction = 1, na.value = "white",
                  guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
                                         barheight = unit(2,"mm"))) +
              labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
@@ -152,7 +152,7 @@ ggsave(
                      grob = ggplotGrob(
                          bi_legend(
                              pal = "BlueOr", dim = 4, breaks = breaksB, arrows = FALSE,
-                             ylab = "Population [log]", xlab = "Mean PPM 2.5",
+                             ylab = "Population [log]", xlab = "Mean PM 2.5",
                              flip_axes = FALSE, rotate_pal = FALSE, size =4) +
                              theme(plot.margin = unit(rep(1,4),"mm"))
                      ), 
@@ -168,7 +168,7 @@ ggsave(
                      grob = ggplotGrob(
                          bi_legend(
                              pal = "DkViolet2", dim = 4,  breaks = breaksA, arrows = FALSE,
-                             xlab = "Poverty", ylab = "Mean PPM 2.5",
+                             xlab = "Poverty", ylab = "Mean PM 2.5",
                              flip_axes = FALSE, rotate_pal = FALSE, size = 4) +
                              theme(plot.margin = unit(rep(1,4),"mm"))
                      ), 

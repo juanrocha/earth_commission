@@ -127,7 +127,7 @@ breaksB <- bi_class_breaks(n_df, x = n_surplus, y = people, dim = 4,
 breaksA$bi_y <- breaksA$bi_y[-1]
 breaksA$bi_y[1] <- -1 * breaksA$bi_y[1]
 
-breaksB$bi_x <- c(-400, -9, 3, 30, 400) # correcting manually
+breaksB$bi_y <- c(-400, -9, 3, 30, 400) # correcting manually
 
 lyt <- '
 AAAD
@@ -172,8 +172,8 @@ ggsave(
                  annotation_custom(
                      grob = ggplotGrob(
                          bi_legend(
-                             pal = "DkViolet2", dim = 4,  breaks = breaksB, arrows = FALSE,
-                             ylab = "Poverty", xlab = "N surplus",
+                             pal = "DkViolet2", dim = 4,  breaks = breaksA, arrows = FALSE,
+                             xlab = "Poverty", ylab = "N surplus",
                              flip_axes = FALSE, rotate_pal = FALSE, size = 4) +
                              theme(plot.margin = unit(rep(1,4),"mm"))
                      ), 
@@ -254,7 +254,7 @@ bb <- world |>
 ## Composed map for Phosphorous
 povsn <- bi_class(povsn, x = GSAP2_poor, y = p_log, dim = 4, style = "quantile") 
 # rename is not working, doing it in base.
-names(povsn)[names(povsn) == "bi_class"] <- "bi_poverty"
+names(povsn)[names(povsn) == "bi_class"] <- "bi_poverty2"
 breaksA <- bi_class_breaks(povsn, x = GSAP2_poor, y = p_log, dim = 4, 
                            style = "quantile", dig_lab = 1, split = TRUE)
 
@@ -299,7 +299,7 @@ ggsave(
              theme_void(base_size = 6)) +
             (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(aes(fill = bi_poverty2), size = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "DkViolet2", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
