@@ -52,9 +52,10 @@ a <- ggplot(dat, aes(transgressions, AREA)) +
     theme_light(base_size = 7)
 
 b <- ggplot(dat, aes(transgressions, prop_affected)) +
-    geom_point(size = 1.5) +
+    geom_point(size = 1.5, aes(color = AREA)) +
+    scale_color_viridis_c(trans = "log10", guide = guide_colorbar(title.position = "top"))+
     geom_text(aes(label = ISO3), size = 1.5, nudge_x = 0.25) + labs(tag = "B") +
-    theme_light(base_size = 7)
+    theme_light(base_size = 7) + theme(legend.position = c(0.8, 0.1), legend.direction = "horizontal")
 
 c <- ggplot(dat, aes(max_trans, transgressions)) +
     geom_point()+ labs(tag = "C") +
@@ -69,4 +70,4 @@ ggsave(
     path = "figures/"
 )
 
-a+b
+a+b+c

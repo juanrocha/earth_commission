@@ -127,7 +127,7 @@ breaksB <- bi_class_breaks(n_df, x = n_surplus, y = people, dim = 4,
 breaksA$bi_y <- breaksA$bi_y[-1]
 breaksA$bi_y[1] <- -1 * breaksA$bi_y[1]
 
-breaksB$bi_y <- c(-400, -9, 3, 30, 400) # correcting manually
+breaksB$bi_x <- c(-400, -9, 3, 30, 400) # correcting manually
 
 lyt <- '
 AAAD
@@ -141,7 +141,7 @@ ggsave(
              geom_spatraster(data = nut$exc_nsur_crit_mi_all_ph) +
              geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
              scico::scale_fill_scico(
-                 "N surplus", palette = "vikO", na.value = "white",
+                 "Excess N surplus", palette = "vikO", na.value = "white",
                  guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
                                         barheight = unit(2,"mm"))) +
              geom_point(data = hpx |> rename(x = long, y = lat), 
@@ -158,7 +158,7 @@ ggsave(
                  grob = ggplotGrob(
                      bi_legend(
                          pal = "BlueOr", dim = 4, breaks = breaksB, arrows = FALSE,
-                         ylab = "Population [log]", xlab = "N surplus",
+                         ylab = "Population [log]", xlab = "Excess N surplus",
                          flip_axes = FALSE, rotate_pal = FALSE, size =4) +
                          theme(plot.margin = unit(rep(1,4),"mm"))
                  ), 
@@ -173,7 +173,7 @@ ggsave(
                      grob = ggplotGrob(
                          bi_legend(
                              pal = "DkViolet2", dim = 4,  breaks = breaksA, arrows = FALSE,
-                             xlab = "Poverty", ylab = "N surplus",
+                             xlab = "Poverty", ylab = "Excess N surplus",
                              flip_axes = FALSE, rotate_pal = FALSE, size = 4) +
                              theme(plot.margin = unit(rep(1,4),"mm"))
                      ), 
