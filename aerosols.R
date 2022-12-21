@@ -110,6 +110,7 @@ da <- world |>
     mutate(name_long = as_factor(name_long) |> fct_rev()) |> 
     ggplot(aes(exposure_ppm25, name_long)) +
     geom_col() +
+    scale_x_log10(labels = scales::label_log(base=10)) +
     labs(tag = "D", x = "Number of people exposed", y = "") +
     theme_minimal(base_size = 6)
 
@@ -119,6 +120,7 @@ db <-  world |>
     mutate(name_long = as_factor(name_long) |> fct_rev()) |> 
     ggplot(aes(prop_exposed, name_long)) +
     geom_col() +
+    scale_x_continuous(labels = scales::percent) +
     labs(tag = "E", x = "Proportion of population", y = "") +
     theme_minimal(base_size = 6)
 
@@ -137,7 +139,7 @@ ggsave(
              geom_spatraster(data = ars) +
              geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
              scale_fill_viridis_c(
-                 expression(PM[2.5]),option = "D", direction = 1, na.value = "white",
+                 expression(PM[2.5]), option = "C", direction = 1, na.value = "white",
                  guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
                                         barheight = unit(2,"mm"))) +
              labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
@@ -147,11 +149,11 @@ ggsave(
             (ggplot() +
                  geom_tile(data = ars_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
                  geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
-                 bi_scale_fill(pal = "BlueOr", dim = 4) +
+                 bi_scale_fill(pal = "BlueGold", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
                          bi_legend(
-                             pal = "BlueOr", dim = 4, breaks = breaksB, arrows = FALSE,
+                             pal = "BlueGold", dim = 4, breaks = breaksB, arrows = FALSE,
                              ylab = "Population [log]", xlab = "Mean PM 2.5",
                              flip_axes = FALSE, rotate_pal = FALSE, size =4) +
                              theme(plot.margin = unit(rep(1,4),"mm"))
@@ -163,11 +165,11 @@ ggsave(
             (povsn |> 
                  ggplot() +
                  geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
-                 bi_scale_fill(pal = "DkViolet2", dim = 4) +
+                 bi_scale_fill(pal = "PurpleOr", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
                          bi_legend(
-                             pal = "DkViolet2", dim = 4,  breaks = breaksA, arrows = FALSE,
+                             pal = "PurpleOr", dim = 4,  breaks = breaksA, arrows = FALSE,
                              xlab = "Poverty", ylab = "Mean PM 2.5",
                              flip_axes = FALSE, rotate_pal = FALSE, size = 4) +
                              theme(plot.margin = unit(rep(1,4),"mm"))
@@ -178,12 +180,32 @@ ggsave(
             (d) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
-    filename = "just_aerosols.png", path = "figures/", 
+    filename = "just_aerosols2.png", path = "figures/", 
     device = "png", width = 6, height = 5, dpi = 400, bg = "white")
 toc() #90s
 
 
 
+### Figure for Justice paper
+ggsave(
+    filename = "aerosols_poverty.pdf",
+    plot = (povsn |> 
+        ggplot() +
+        geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
+        bi_scale_fill(pal = "PurpleOr", dim = 4) +
+        annotation_custom(
+            grob = ggplotGrob(
+                bi_legend(
+                    pal = "PurpleOr", dim = 4,  breaks = breaksA, arrows = FALSE,
+                    xlab = "Poverty", ylab = "Mean PM 2.5",
+                    flip_axes = FALSE, rotate_pal = FALSE, size = 4) +
+                    theme(plot.margin = unit(rep(1,4),"mm"))
+            ), 
+            xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
+        theme_void(base_size = 6)),
+    path = "figures/", units = "mm",
+    device = "pdf", width =88, height = 50, dpi = 400, bg = "white"
+)
 
 
 #### Left overs ####
