@@ -80,7 +80,7 @@ breaksB
 tic()
 ggsave(plot = (ggplot() +
     geom_spatraster(data = wtr) +
-    geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
     scico::scale_fill_scico(
         "Trend in ground\nwater depth",  na.value = "white", midpoint = 0, palette = "vikO", direction =-1,
         guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"),
@@ -90,13 +90,13 @@ ggsave(plot = (ggplot() +
     theme_void(base_size = 6) +
     theme(legend.position = c(0.15, 0.15),
           legend.direction = "horizontal")),
-    filename = "ground_water_depth.png", path = "figures/", 
-    device = "png", width = 6, height = 3, dpi = 400, bg = "white")
+    filename = "ground_water_depth.pdf", path = "figures/", 
+    device = "pdf", width = 6, height = 3, dpi = 400, bg = "white")
 toc() #3s
 
 ggplot() +
     geom_spatraster(data = estress) +
-    geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
     scico::scale_fill_scico(
         "Number of months with\n +/-20% flow alteration",  na.value = "white", 
         palette = "bamako", direction = -1,
@@ -109,26 +109,26 @@ ggplot() +
 
 
 ggsave(plot = (ggplot() +
-    geom_sf(data = est, aes(fill = PointSampl), size = 0.01, color = "white") +
+    geom_sf(data = est, aes(fill = PointSampl), linewidth = 0.01, color = "white") +
     scale_fill_viridis_c(
         "Number of months with\n +/-20% flow alteration",option = "D", direction = 1, na.value = "white",
         guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
                                barheight = unit(2,"mm"))) +
-    geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.01, color = "gray25") +
     #labs(tag = "A") + 
     lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
     theme_void(base_size = 6)+
     theme(legend.position = c(0.11, 0.1),
           legend.direction = "horizontal") ),
-    filename = "water_flow_alteration.png", path = "figures/", 
-           device = "png", width = 6, height = 3, dpi = 400, bg = "white")
+    filename = "water_flow_alteration.pdf", path = "figures/", 
+           device = "pdf", width = 6, height = 3, dpi = 400, bg = "white")
 
 ## Combine them all
 tic()
 ggsave(
     plot = (
         (ggplot() +
-             geom_sf(data = est, aes(color = PointSampl), size = 0.1) +
+             geom_sf(data = est, aes(color = PointSampl), linewidth = 0.1) +
              scale_color_viridis_c(
                  "Number of months with\n +/-20% flow alteration",
                  option = "D", direction = 1, na.value = "white",
@@ -141,7 +141,7 @@ ggsave(
                    legend.direction = "horizontal"))+
         (ggplot() +
              geom_spatraster(data = wtr) +
-             geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+             geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
              scico::scale_fill_scico(
                  "Trend in ground\nwater depth",  na.value = "white", midpoint = 0, palette = "vik",
                  guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"),
@@ -153,7 +153,7 @@ ggsave(
             
             (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_pop2), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(aes(fill = bi_pop2), linewidth = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "BlueOr", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
@@ -168,7 +168,7 @@ ggsave(
                  theme_void(base_size = 5)) +
             (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_pop), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(aes(fill = bi_pop), linewidth = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "BlueOr", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
@@ -183,7 +183,7 @@ ggsave(
                  theme_void(base_size = 5)) +
             (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_poverty2), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(aes(fill = bi_poverty2), linewidth = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "DkViolet2", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
@@ -198,7 +198,7 @@ ggsave(
                  theme_void(base_size = 5)) +
             (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(aes(fill = bi_poverty), linewidth = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "DkViolet2", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
@@ -213,15 +213,15 @@ ggsave(
                  theme_void(base_size = 5)) +
             plot_layout(nrow = 3, ncol = 2, byrow = TRUE)
     ) ,
-    filename = "just_water.png", path = "figures/", 
-    device = "png", width = 7, height = 6, dpi = 400, bg = "white")
+    filename = "just_water.pdf", path = "figures/", 
+    device = "pdf", width = 7, height = 6, dpi = 300, bg = "white")
 toc() #209s
 
 ## Ben wants smaller panels
 ggsave(
     plot = (povsn |> 
                 ggplot() +
-                geom_sf(aes(fill = bi_poverty2), size = 0.01, color = "white", show.legend = FALSE) +
+                geom_sf(aes(fill = bi_poverty2), linewidth = 0.01, color = "white", show.legend = FALSE) +
                 bi_scale_fill(pal = "DkViolet2", dim = 4) +
                 annotation_custom(
                     grob = ggplotGrob(
@@ -236,7 +236,7 @@ ggsave(
                 theme_void(base_size = 8)) +
         (povsn |> 
              ggplot() +
-             geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
+             geom_sf(aes(fill = bi_poverty), linewidth = 0.01, color = "white", show.legend = FALSE) +
              bi_scale_fill(pal = "DkViolet2", dim = 4) +
              annotation_custom(
                  grob = ggplotGrob(
@@ -251,13 +251,13 @@ ggsave(
              theme_void(base_size = 8)) +
         plot_annotation(tag_levels = "A") +
         plot_layout(nrow = 2, ncol = 1, byrow = TRUE),
-    filename = "just_water_poverty.png", path = "figures/", 
-    device = "png", width = 7, height = 6, dpi = 400, bg = "white")
+    filename = "just_water_poverty.pdf", path = "figures/", 
+    device = "pdf", width = 7, height = 6, dpi = 400, bg = "white")
 
 ggsave(
     plot = (povsn |> 
                 ggplot() +
-                geom_sf(aes(fill = bi_pop2), size = 0.01, color = "white", show.legend = FALSE) +
+                geom_sf(aes(fill = bi_pop2), linewidth = 0.01, color = "white", show.legend = FALSE) +
                 bi_scale_fill(pal = "BlueOr", dim = 4) +
                 annotation_custom(
                     grob = ggplotGrob(
@@ -272,7 +272,7 @@ ggsave(
                 theme_void(base_size = 8)) +
         (povsn |> 
              ggplot() +
-             geom_sf(aes(fill = bi_pop), size = 0.01, color = "white", show.legend = FALSE) +
+             geom_sf(aes(fill = bi_pop), linewidth = 0.01, color = "white", show.legend = FALSE) +
              bi_scale_fill(pal = "BlueOr", dim = 4) +
              annotation_custom(
                  grob = ggplotGrob(
@@ -288,7 +288,7 @@ ggsave(
         plot_annotation(tag_levels = "A") +
         plot_layout(nrow = 2, ncol = 1, byrow = TRUE),
     filename = "just_water_exposure.png", path = "figures/", 
-    device = "png", width = 7, height = 6, dpi = 400, bg = "white")
+    device = "png", width = 7, height = 6, dpi = 300, bg = "white")
 
 
 

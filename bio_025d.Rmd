@@ -1,0 +1,130 @@
+---
+title: "Biodiversity tipping 0.25"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r message = FALSE, warning=FALSE, echo=FALSE}
+library(tidyverse)
+library(fs)
+library(sf)
+library(spData)
+library(terra)
+library(biscale)
+library(tictoc)
+library(tidync)
+library(patchwork)
+library(tidyterra)
+library(rworldmap)
+library(segmented)
+library(stargazer)
+library(tidymodels)
+library(themis)
+data("coastsCoarse")
+```
+
+## Notes:
+
+- Set up a downsampling step and repeat the analysis, with and without biome.
+
+
+Question: **Are there tipping points in biodiversity loss (extinction) as response to changes in functional integrity?**
+
+We discussed this question with a brainstorming session with Tim Newbold and Sam Hill. The idea was to check if there was a relationship between the integrity and species loss, whether there is a level of integrity beyond which species are lost faster?
+
+## Datasets:
+
+To test that I used the biosphere functional integrity data that we introduced in Mohamed et al 2022 (% of seminatural area within 10Km radius); and the [local terrestrial biodiversity](https://portal.geobon.org/ebv-detail?id=6) data from GeoBON developed by Andy Purvis and Sam Hill.
+
+```{r message=FALSE, warning=FALSE}
+bio_wl <- rast("data/working_lands_025degree.tif")
+bio_nl <- rast("data/all_integrity_025degree.tif")
+bio_comb <- min(bio_wl, bio_nl, na.rm = T)
+rm(bio_wl, bio_nl)
+ggplot() +
+    geom_spatraster(data = bio_comb$Map_mean) +
+    geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    scale_fill_viridis_c(
+        "Functional integrity", option = "D", direction = -1, na.value = "white",
+        guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"),
+                               barheight = unit(2,"mm"))) +
+    lims(y = c(-55.9, 83.2)) +
+    labs(titler = "Functional Integrity", subtitle = "% of seminatural areas within a 10Km^2 radius", caption = "Source: Mohamed et al 2022") +
+    theme_void(base_size = 6) +
+    theme(legend.position = c(0.11, 0.1),
+          legend.direction = "horizontal")
+```
+The PREDICTS dataset has four metrics: i) Species richness (S), ii) relative species richness change ($\Delta_S$), iii) diversity-weighted relative species richness change ($\Delta_{SS} = \Delta_S*S_{2015}/Mean(S_{2015}) $), where Mean is the spatial mean; and iv) intactness (I). They also developed four scenarios and make a prediction by 2050 based on SSP-RCPs. The dataset has three time periods, 1900 as reference point, 2015 as change of biodiversity close to present time, and 2050 as future prediction. For the purpose of the analysis I only use present time data which are the only ones comparable with functional integrity.
+
+Sam's Hill dataset from 2022 at 0.25deg resolution but only up to 2010.
+
+```{r}
+# ant <- rast("~/Documents/Projects/DATA/anthromes_2_base_data_ASCII_GRID/land_km2.asc")
+fl <- "~/Documents/Projects/DATA/Biodiversity/Historical local species richness (PREDICTS)/hill_comcom_id55_20221205_v1.nc"
+dat <- raster::brick(fl)
+
+dat <- dat$X2010.01.01
+#stars::st_as_stars(dat)
+
+plot(dat)
+```
+
+```{r}
+ext(bio_comb) <- ext(dat)
+# use the ext(dat) to fill up values
+r <- rast(nrows = 567, ncol = 1440, xmin = -180, xmax = 180, ymin = -58, ymax = 83.75,
+          crs = crs(dat), resolution = c(0.25, 0.25), extent = ext(dat))
+
+bio2 <- terra::project(bio_comb, r,res = c(0.25, 0.25))
+
+bio2_df <- as.data.frame(bio2, xy = TRUE) |> as_tibble()
+sps2_df <- as.data.frame(dat, xy = TRUE) |> as_tibble()
+
+bio2_df <- bio2_df |> 
+    left_join(sps2_df) |> 
+    rename(delta_S = X2010.01.01, integrity = Map_mean)
+
+bio2_df |> 
+    ggplot(aes(integrity, delta_S)) +
+    geom_point(alpha = 0.4, size = 0.1)
+
+```
+
+Add biomes:
+```{r}
+## categorical variables: biomes
+terr_eco <- st_read("~/Documents/Projects/DATA/terr-ecoregions-TNC/tnc_terr_ecoregions.shp")
+#terr_eco["WWF_MHTNAM"]
+r <- raster::raster(nrows = 567, ncol = 1440, xmn = -180, xmx = 180, ymn = -58, ymx = 83.75)
+
+biomes <- fasterize::fasterize(terr_eco, r, field = "WWF_MHTNUM")
+biomes <- as.data.frame(biomes, xy = TRUE) |> as_tibble()
+
+# extract the key from shape file:
+key_terrestrial <- terr_eco %>%
+    as_tibble() %>%
+    dplyr::select("WWF_MHTNAM", "WWF_MHTNUM") %>%
+    unique() %>%
+    rename(biome = 1, biome_code = 2)
+
+biomes <- biomes |> 
+    rename(biome_code = layer) |> 
+    left_join(key_terrestrial)
+
+bio2_df <- bio2_df |> 
+    left_join(biomes)
+
+```
+
+```{r}
+bio2_df |> 
+    ggplot(aes(integrity, delta_S)) + 
+    geom_point(aes(color = biome), show.legend = FALSE, size = 1, alpha = 0.5) +
+    geom_hline(yintercept = 0, color ="orange", linetype = 2) +
+    geom_smooth(method = "lm") +
+    scico::scale_color_scico_d(palette = "romaO", na.value = "grey50") +
+    facet_wrap(~biome) +
+    theme_light(base_size = 6)
+```
+Stopped here, it doesn't seem to have a break point on the relationship of the two variables at 0.25d

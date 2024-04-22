@@ -53,9 +53,12 @@ a <- ggplot(dat, aes(transgressions, AREA)) +
 
 b <- ggplot(dat, aes(transgressions, prop_affected)) +
     geom_point(size = 1.5, aes(color = AREA)) +
-    scale_color_viridis_c(trans = "log10", guide = guide_colorbar(title.position = "top"))+
+    scale_color_viridis_c(
+        trans = "log10", guide = guide_colorbar(title.position = "top", barheight = unit(2, "mm"), barwidth = unit(20, "mm")))+
     geom_text(aes(label = ISO3), size = 1.5, nudge_x = 0.25) + labs(tag = "B") +
-    theme_light(base_size = 7) + theme(legend.position = c(0.8, 0.1), legend.direction = "horizontal")
+    theme_light(base_size = 7) + 
+    theme(legend.position = c(0.7, 0.1), legend.direction = "horizontal", 
+          legend.text = element_text(size = 5), legend.title = element_text(size = 5))
 
 c <- ggplot(dat, aes(max_trans, transgressions)) +
     geom_point()+ labs(tag = "C") +

@@ -41,7 +41,7 @@ ars25 <- extend(ars25, pop_adj)
 tic()
 ggplot() +
     geom_spatraster(data = ars) +
-    geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
     #geom_sf(data = world, size = 0.1, fill = NA, color = "gray10") +
     # scico::scale_fill_scico(
     #     "Mean PPM 2.5", palette = "vikO", na.value = "white",
@@ -137,9 +137,9 @@ ggsave(
     plot = (
         ((ggplot() +
              geom_spatraster(data = ars) +
-             geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+             geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
              scale_fill_viridis_c(
-                 expression(PM[2.5]), option = "C", direction = 1, na.value = "white",
+                 expression(PM[2.5]), option = "D", direction = 1, na.value = "white",
                  guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
                                         barheight = unit(2,"mm"))) +
              labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
@@ -148,12 +148,12 @@ ggsave(
                    legend.direction = "horizontal")) +
             (ggplot() +
                  geom_tile(data = ars_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
-                 geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
-                 bi_scale_fill(pal = "BlueGold", dim = 4) +
+                 geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.01, color = "gray25") +
+                 bi_scale_fill(pal = "BlueOr", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
                          bi_legend(
-                             pal = "BlueGold", dim = 4, breaks = breaksB, arrows = FALSE,
+                             pal = "BlueOr", dim = 4, breaks = breaksB, arrows = FALSE,
                              ylab = "Population [log]", xlab = "Mean PM 2.5",
                              flip_axes = FALSE, rotate_pal = FALSE, size =4) +
                              theme(plot.margin = unit(rep(1,4),"mm"))
@@ -164,12 +164,12 @@ ggsave(
                  ) +
             (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
-                 bi_scale_fill(pal = "PurpleOr", dim = 4) +
+                 geom_sf(aes(fill = bi_poverty), linewidth = 0.01, color = "white", show.legend = FALSE) +
+                 bi_scale_fill(pal = "DkViolet2", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
                          bi_legend(
-                             pal = "PurpleOr", dim = 4,  breaks = breaksA, arrows = FALSE,
+                             pal = "DkViolet2", dim = 4,  breaks = breaksA, arrows = FALSE,
                              xlab = "Poverty", ylab = "Mean PM 2.5",
                              flip_axes = FALSE, rotate_pal = FALSE, size = 4) +
                              theme(plot.margin = unit(rep(1,4),"mm"))
@@ -180,8 +180,8 @@ ggsave(
             (d) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
-    filename = "just_aerosols2.png", path = "figures/", 
-    device = "png", width = 6, height = 5, dpi = 400, bg = "white")
+    filename = "just_aerosols.pdf", path = "figures/", 
+    device = "pdf", width = 6, height = 5, dpi = 300, bg = "white")
 toc() #90s
 
 

@@ -18,7 +18,9 @@ load("data/subnational_poverty_vars.RData")
 # load("data/subnational_hdi_vars.RData")
 
 nut <- rast("~/Documents/Projects/DATA/EC_additional_datasets/exc_nsur_crit_mi_all_ph.asc")
-p <- rast("~/Documents/Projects/DATA/EC_additional_datasets/MH2018_Pconcn_runoffcutoff5_concngt10k.nc")
+p <- stars::read_ncdf("~/Documents/Projects/DATA/EC_additional_datasets/MH2018_Pconcn_runoffcutoff5_concngt10k.nc", var = "P concentration") |> rast()
+
+crs(p) <- "epsg:4326"
 
 hpx <- readxl::read_xls(path = "~/Downloads/wri_eutrophic_hypoxic_dataset_2011-03.xls") |> 
     janitor::clean_names()
@@ -50,7 +52,7 @@ n_df <- as.data.frame(nut, xy = TRUE) |> as_tibble() |>
     rename(n_surplus = exc_nsur_crit_mi_all_ph, 
            people = gpw_v4_population_density_rev11_2020_15_min)
 p_df <- as.data.frame(p025, xy = TRUE) |> as_tibble() |> 
-    rename(p_concentration = `P concentration`, 
+    rename(p_concentration = lyr.1, #`P concentration`, 
            people = gpw_v4_population_density_rev11_2020_15_min)
 
 n_df <- bi_class(n_df, x = n_surplus, y = people, dim = 4, style = "quantile")
@@ -139,7 +141,7 @@ ggsave(
     plot = (
         (ggplot() +
              geom_spatraster(data = nut$exc_nsur_crit_mi_all_ph) +
-             geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+             geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
              scico::scale_fill_scico(
                  "Excess N surplus", palette = "vikO", na.value = "white",
                  guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
@@ -152,7 +154,7 @@ ggsave(
                    legend.direction = "horizontal")) +
         (ggplot() +
              geom_tile(data = n_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
-             geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+             geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
              bi_scale_fill(pal = "BlueOr", dim = 4) +
              annotation_custom(
                  grob = ggplotGrob(
@@ -167,7 +169,9 @@ ggsave(
              theme_void(base_size = 6)) +
             (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(
+                     aes(fill = bi_poverty), 
+                     linewidth = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "DkViolet2", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
@@ -183,8 +187,8 @@ ggsave(
             (ba / bb) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
-    filename = "just_nitrogen.png", path = "figures/", 
-    device = "png", width = 6, height = 5, dpi = 400, bg = "white")
+    filename = "just_nitrogen.pdf", path = "figures/", 
+    device = "pdf", width = 6, height = 5, dpi = 400, bg = "white")
 toc() #23s
 
 
@@ -202,7 +206,7 @@ ggplot() +
         breaks = c(0, 100, 1000, 10000),
         guide = guide_colorbar(title.position = "top", barwidth = unit(2,"mm"), 
                                barheight = unit(20,"mm"))) +
-    geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
     labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
     theme_void(base_size = 6) +
     theme(legend.position = c(0.1, 0.3), legend.text = element_text(size = 4),
@@ -212,9 +216,9 @@ ggplot() +
 ## get the number of people affected
 tic()
 p_df2 <- terra::extract(
-    ((p025$`P concentration` > 50) * (expm1(p025$gpw_v4_population_density_rev11_2020_15_min))),
+    ((p025$lyr.1 > 50) * (expm1(p025$gpw_v4_population_density_rev11_2020_15_min))),
     vect(world), fun = sum, na.rm = TRUE) |>
-    rename(exposed = P.concentration) # people exposed
+    rename(exposed = lyr.1) # people exposed
 toc() #635.124 sec elapsed
 
 pop_df <- terra::extract(
@@ -275,7 +279,7 @@ ggsave(
                  breaks = c(0, 100, 1000, 10000, 50000),
                  guide = guide_colorbar(title.position = "top", barwidth = unit(1,"mm"), 
                                         barheight = unit(10,"mm"))) +
-             geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+             geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
              geom_point(data = hpx |> rename(x = long, y = lat), 
                         aes(x,y), fill = "orange", color = "orange", size = 0.05, alpha = 0.25) +
              labs(tag = "A") + lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
@@ -284,7 +288,7 @@ ggsave(
                    legend.title = element_text(size = 4), legend.direction = "vertical")) +
         (ggplot() +
              geom_tile(data = p_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
-             geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+             geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
              bi_scale_fill(pal = "BlueOr", dim = 4) +
              annotation_custom(
                  grob = ggplotGrob(
@@ -299,7 +303,7 @@ ggsave(
              theme_void(base_size = 6)) +
             (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_poverty2), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(aes(fill = bi_poverty2), linewidth = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "DkViolet2", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
@@ -315,8 +319,8 @@ ggsave(
             (ba/bb) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
-    filename = "just_phosphorous.png", path = "figures/", 
-    device = "png", width = 6, height = 5, dpi = 400, bg = "white")
+    filename = "just_phosphorous.pdf", path = "figures/", 
+    device = "pdf", width = 6, height = 5, dpi = 400, bg = "white")
 toc() #87s
 
 

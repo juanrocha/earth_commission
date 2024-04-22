@@ -53,7 +53,7 @@ ggsave(
     #           legend.direction = "horizontal")) +
     (ggplot() +
          geom_spatraster(data = bio_wl) +
-         geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+         geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
          scale_fill_viridis_c(
              "Integrity working lands",option = "D", direction = -1, na.value = "white",
              guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
@@ -64,8 +64,8 @@ ggsave(
          theme(legend.position = c(0.11, 0.1),
                legend.direction = "horizontal")),
         #plot_layout(nrow = 1, ncol = 2),
-    filename = "safe_biodiversity.png", path = "figures/", 
-    device = "png", width = 7, height = 3, dpi = 400, bg = "white"
+    filename = "safe_biodiversity.pdf", path = "figures/", 
+    device = "pdf", width = 7, height = 3, dpi = 400, bg = "white"
 )
 toc() #5.1s
 
@@ -136,7 +136,7 @@ ggsave(
     plot = (
         (ggplot() +
              geom_spatraster(data = bio_comb$Map_mean) +
-             geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+             geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
              scale_fill_viridis_c(
                  "Functional integrity", option = "D", direction = -1, na.value = "white",
                  guide = guide_colorbar(title.position = "top", barwidth = unit(2,"cm"), 
@@ -147,7 +147,7 @@ ggsave(
                    legend.direction = "horizontal")) +
         (ggplot() +
              geom_tile(data = bio_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
-             geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+             geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
              bi_scale_fill(pal = "BlueOr", dim = 4) +
              annotation_custom(
                  grob = ggplotGrob(
@@ -160,9 +160,9 @@ ggsave(
                  xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
              labs(tag = "B") +  lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
              theme_void(base_size = 6))  +
-        (povsn |> 
+        ( povsn |> 
              ggplot() +
-             geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
+             geom_sf(aes(fill = bi_poverty), linewidth = 0.01, color = "white", show.legend = FALSE) +
              bi_scale_fill(pal = "DkViolet2", dim = 4) +
              annotation_custom(
                  grob = ggplotGrob(
@@ -174,12 +174,12 @@ ggsave(
                  ), 
                  xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
              labs(tag = "C") +
-             theme_void(base_size = 6)) +
+             theme_void(base_size = 6) ) +
         (d) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
             ) ,
     filename = "just_biodiversity.png", path = "figures/", 
-    device = "png", width = 6, height = 5, dpi = 400, bg = "white")
+    device = "png", width = 6, height = 5, dpi = 300, bg = "white")
 toc() #24s
 
 

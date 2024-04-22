@@ -37,7 +37,7 @@ pop_adj <- (pop * area)
 tic()
 ggplot() +
     geom_spatraster(data = wet1) +
-    geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
     #geom_sf(data = world, size = 0.1, fill = NA, color = "gray10") +
     # scico::scale_fill_scico(
     #     "Mean PPM 2.5", palette = "vikO", na.value = "white",
@@ -88,7 +88,6 @@ brks <- bi_class_breaks(mat_df, x = cross_29C, y = poplog, dim = 2, style = "qua
                          dig_lab = 1, split = TRUE)
 
 
-
 ### Composed map for just:
 ## Because there is two temperature scenarions, I need to duplicate the color scale construction block
 ## For 1.2C
@@ -106,6 +105,9 @@ breaksF <- bi_class_breaks(povsn, x = GSAP2_poor, y = max_t2, dim = 4,
                            style = "quantile", dig_lab = 1, split = TRUE)
 breaksD <- bi_class_breaks(wet2_df, x = maxT2, y = pop2020, dim = 4, 
                            style = "quantile", dig_lab = 1, split = TRUE)
+
+breaksC$bi_x <- breaksC$bi_x[-c(1)] # remove NA
+breaksD$bi_x <- breaksD$bi_x[-c(1)] 
 
 
 ## Population affected
@@ -212,8 +214,8 @@ ggsave(
         #                legend.direction = "horizontal")) +
         (ggplot() +
                  geom_tile(data = wet1_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
-                 geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
-                 bi_scale_fill(pal = "BlueOr", dim = 4) +
+                 geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
+                 bi_scale_fill(pal = "BlueOr", dim = 4, na.value = "white") +
                  annotation_custom(
                      grob = ggplotGrob(
                          bi_legend(
@@ -224,11 +226,12 @@ ggsave(
                      ), 
                      xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
                  labs(tag = "A") +  lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
-                 theme_void(base_size = 6)) +
+                 theme_void(base_size = 6) ) +
         (ggplot() +
-                 geom_tile(data = wet2_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
-                 geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
-                 bi_scale_fill(pal = "BlueOr", dim = 4) +
+                 geom_tile(data = wet2_df, 
+                           aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
+                 geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
+                 bi_scale_fill(pal = "BlueOr", dim = 4,  na.value = "white") +
                  annotation_custom(
                      grob = ggplotGrob(
                          bi_legend(
@@ -239,10 +242,10 @@ ggsave(
                      ), 
                      xmin = -180, ymin = -60, xmax = -90, ymax = 10) +
                  labs(tag = "B") +  lims(y = c(-55.9, 83.2)) + # to make it the same extend as povsn
-                 theme_void(base_size = 6)) +
+                 theme_void(base_size = 6) ) +
         (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_poverty), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(aes(fill = bi_poverty), linewidth = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "DkViolet2", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
@@ -257,7 +260,7 @@ ggsave(
                  theme_void(base_size = 6)) +
         (povsn |> 
                  ggplot() +
-                 geom_sf(aes(fill = bi_poverty2), size = 0.01, color = "white", show.legend = FALSE) +
+                 geom_sf(aes(fill = bi_poverty2), linewidth = 0.01, color = "white", show.legend = FALSE) +
                  bi_scale_fill(pal = "DkViolet2", dim = 4) +
                  annotation_custom(
                      grob = ggplotGrob(
@@ -271,21 +274,22 @@ ggsave(
                  labs(tag = "D") +
                  theme_void(base_size = 6)) +
             plot_layout(nrow = 2, ncol = 2, byrow = TRUE)
-    ) ,
-    filename = "just_climate_temp_a.png", path = "figures/", 
-    device = "png", width = 7, height = 3.5, dpi = 400, bg = "white")
+    ) / (ga+gb +fa+fb + plot_layout(nrow = 1, ncol = 4, byrow = TRUE)) +
+        plot_layout(heights = c(3,1)),
+    filename = "just_climate.pdf", path = "figures/", 
+    device = "pdf", width = 7, height = 5, dpi = 300, bg = "white")
 toc() #204s
 
 ggsave(
-    ga+gb +fa+fb + plot_layout(nrow = 1, ncol = 4, byrow = TRUE),
-    filename = "just_climate_temp_b.png", path = "figures/", 
-    device = "png", width = 7, height = 1.5, dpi = 400, bg = "white"
+    ga+gb +fa+fb + plot_layout(nrow = 1, ncol = 4, byrow = TRUE) ,
+    filename = "just_climate_temp_b.pdf", path = "figures/", 
+    device = "pdf", width = 7, height = 1.5, dpi = 400, bg = "white"
 )
 
 ## Exposed people to MAT > 29C
 ggplot() +
     geom_tile(data = mat_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
-    geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+    geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
     bi_scale_fill(pal = "BlueOr", dim = 4) +
     annotation_custom(
         grob = ggplotGrob(
@@ -341,7 +345,7 @@ ggsave(
     plot = (
         (ggplot() +
             geom_tile(data = mat_df, aes(x = x, y = y, fill = bi_class), show.legend = FALSE) +
-            geom_sf(data = st_as_sf(coastsCoarse), size = 0.1, color = "gray25") +
+            geom_sf(data = st_as_sf(coastsCoarse), linewidth = 0.1, color = "gray25") +
             bi_scale_fill(pal = "BlueOr", dim = 2) +
             annotation_custom(
                 grob = ggplotGrob(
@@ -356,8 +360,8 @@ ggsave(
             theme_void(base_size = 6)) +
             (ba + bb) + plot_layout(ncol = 2)
         ),
-    filename = "just_climate_mat.png", path = "figures/", 
-    device = "png", width = 7, height = 2, dpi = 400, bg = "white")
+    filename = "just_climate_mat.pdf", path = "figures/", 
+    device = "pdf", width = 7, height = 2, dpi = 400, bg = "white")
 toc()
 
 #### old code + leftovers ####
@@ -409,7 +413,7 @@ names(hdi_shp)[names(hdi_shp) == "bi_class"] <- "bi_hdi2"
 
 (povsn |> 
         ggplot() +
-        geom_sf(aes(fill = bi_pop), size = 0.01, color = "white", show.legend = FALSE) +
+        geom_sf(aes(fill = bi_pop), linewidth = 0.01, color = "white", show.legend = FALSE) +
         bi_scale_fill(pal = "BlueOr", dim = 4) +
         annotation_custom(
             grob = ggplotGrob(
@@ -425,7 +429,7 @@ names(hdi_shp)[names(hdi_shp) == "bi_class"] <- "bi_hdi2"
     
     (hdi_shp |> 
          ggplot() +
-         geom_sf(aes(fill = bi_hdi), size = 0.01, color = "white", show.legend = FALSE) +
+         geom_sf(aes(fill = bi_hdi), linewidth = 0.01, color = "white", show.legend = FALSE) +
          bi_scale_fill(pal = "GrPink2", dim = 4) +
          annotation_custom(
              grob = ggplotGrob(
@@ -441,7 +445,7 @@ names(hdi_shp)[names(hdi_shp) == "bi_class"] <- "bi_hdi2"
     
     (hdi_shp |> 
          ggplot() +
-         geom_sf(aes(fill = bi_hdi), size = 0.01, color = "white", show.legend = FALSE) +
+         geom_sf(aes(fill = bi_hdi), linewidth = 0.01, color = "white", show.legend = FALSE) +
          bi_scale_fill(pal = "GrPink2", dim = 4) +
          annotation_custom(
              grob = ggplotGrob(
@@ -457,7 +461,7 @@ names(hdi_shp)[names(hdi_shp) == "bi_class"] <- "bi_hdi2"
     
     (povsn |> 
          ggplot() +
-         geom_sf(aes(fill = bi_pop2), size = 0.01, color = "white", show.legend = FALSE) +
+         geom_sf(aes(fill = bi_pop2), linewidth = 0.01, color = "white", show.legend = FALSE) +
          bi_scale_fill(pal = "BlueOr", dim = 4) +
          annotation_custom(
              grob = ggplotGrob(
