@@ -64,8 +64,8 @@ ggsave(
          theme(legend.position = c(0.11, 0.1),
                legend.direction = "horizontal")),
         #plot_layout(nrow = 1, ncol = 2),
-    filename = "safe_biodiversity.pdf", path = "figures/", 
-    device = "pdf", width = 7, height = 3, dpi = 400, bg = "white"
+    filename = "safe_biodiversity.tif", path = "figures/", 
+    device = "tiff", width = 7, height = 3, dpi = 700, bg = "white", , compression = "lzw"
 )
 toc() #5.1s
 
@@ -178,8 +178,8 @@ ggsave(
         (d) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
             ) ,
-    filename = "just_biodiversity.png", path = "figures/", 
-    device = "png", width = 6, height = 5, dpi = 300, bg = "white")
+    filename = "just_biodiversity.tif", path = "figures/", 
+    device = "tiff", width = 6, height = 5, dpi = 700, bg = "white", compression = "lzw")
 toc() #24s
 
 

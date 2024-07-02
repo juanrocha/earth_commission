@@ -187,8 +187,8 @@ ggsave(
             (ba / bb) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
-    filename = "just_nitrogen.pdf", path = "figures/", 
-    device = "pdf", width = 6, height = 5, dpi = 400, bg = "white")
+    filename = "just_nitrogen.tif", path = "figures/", 
+    device = "tiff", width = 6, height = 5, dpi = 700, bg = "white", , compression = "lzw")
 toc() #23s
 
 
@@ -319,8 +319,8 @@ ggsave(
             (ba/bb) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
-    filename = "just_phosphorous.pdf", path = "figures/", 
-    device = "pdf", width = 6, height = 5, dpi = 400, bg = "white")
+    filename = "just_phosphorous.tif", path = "figures/", 
+    device = "tiff", width = 6, height = 5, dpi = 700, bg = "white", , compression = "lzw")
 toc() #87s
 
 

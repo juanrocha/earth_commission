@@ -180,8 +180,8 @@ ggsave(
             (d) +
             plot_layout(design = lyt, ncol = 2, widths = c(2,1))
     ) ,
-    filename = "just_aerosols.pdf", path = "figures/", 
-    device = "pdf", width = 6, height = 5, dpi = 300, bg = "white")
+    filename = "just_aerosols.tif", path = "figures/", 
+    device = "tiff", width = 6, height = 5, dpi = 700, bg = "white", compression = "lzw")
 toc() #90s
 
 
