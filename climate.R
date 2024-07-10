@@ -276,14 +276,15 @@ ggsave(
             plot_layout(nrow = 2, ncol = 2, byrow = TRUE)
     ) / (ga+gb +fa+fb + plot_layout(nrow = 1, ncol = 4, byrow = TRUE)) +
         plot_layout(heights = c(3,1)),
-    filename = "just_climate.tif", path = "figures/", 
-    device = "tiff", width = 6, height = 5, dpi = 700, bg = "white", , compression = "lzw")
+    filename = "just_climate.png", path = "figures/", 
+    device = "png", width = 6, height = 5, dpi = 600, bg = "white" #, compression = "lzw"
+    )
 toc() #204s
 
 ggsave(
     ga+gb +fa+fb + plot_layout(nrow = 1, ncol = 4, byrow = TRUE) ,
-    filename = "just_climate_temp_b.tif", path = "figures/", 
-    device = "tiff", width = 6, height = 1.5, dpi = 700, bg = "white",, compression = "lzw"
+    filename = "just_climate_temp_b.tiff", path = "figures/", 
+    device = "tiff", width = 6, height = 1.5, dpi = 700, bg = "white", compression = "lzw"
 )
 
 ## Exposed people to MAT > 29C
@@ -360,8 +361,9 @@ ggsave(
             theme_void(base_size = 6)) +
             (ba + bb) + plot_layout(ncol = 2)
         ),
-    filename = "just_climate_mat.tif", path = "figures/", 
-    device = "tiff", width = 7, height = 2, dpi = 700, bg = "white", compression = "lzw")
+    filename = "just_climate_mat.tiff", path = "figures/", 
+    device = "tiff", width = 7, height = 2, dpi = 600, bg = "white" , compression = "lzw"
+    )
 toc()
 
 #### old code + leftovers ####

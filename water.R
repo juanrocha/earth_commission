@@ -90,8 +90,8 @@ ggsave(plot = (ggplot() +
     theme_void(base_size = 6) +
     theme(legend.position = c(0.15, 0.15),
           legend.direction = "horizontal")),
-    filename = "ground_water_depth.tif", path = "figures/", 
-    device = "tiff", width = 6, height = 3, dpi = 700, bg = "white", compression = "lzw")
+    filename = "ground_water_depth.tiff", path = "figures/", 
+    device = "tiff", width = 6, height = 3, dpi = 600, bg = "white", compression = "lzw")
 toc() #3s
 
 ggplot() +
@@ -213,8 +213,8 @@ ggsave(
                  theme_void(base_size = 5)) +
             plot_layout(nrow = 3, ncol = 2, byrow = TRUE)
     ) ,
-    filename = "just_water.tif", path = "figures/", 
-    device = "tiff", width = 7, height = 6, dpi = 700, bg = "white", compression = "lzw")
+    filename = "just_water.tiff", path = "figures/", 
+    device = "tiff", width = 7, height = 6, dpi = 600, bg = "white", compression = "lzw")
 toc() #209s
 
 ## Ben wants smaller panels
@@ -251,8 +251,9 @@ ggsave(
              theme_void(base_size = 8)) +
         plot_annotation(tag_levels = "A") +
         plot_layout(nrow = 2, ncol = 1, byrow = TRUE),
-    filename = "just_water_poverty.tif", path = "figures/", 
-    device = "tiff", width = 7, height = 6, dpi = 700, bg = "white", compression = "lzw")
+    filename = "just_water_poverty.pdf", path = "figures/", 
+    device = "pdf", width = 7, height = 6, dpi = 600, bg = "white"#, compression = "lzw"
+    )
 
 ggsave(
     plot = (povsn |> 
@@ -287,8 +288,9 @@ ggsave(
              theme_void(base_size = 8))  +
         plot_annotation(tag_levels = "A") +
         plot_layout(nrow = 2, ncol = 1, byrow = TRUE),
-    filename = "just_water_exposure.tif", path = "figures/", 
-    device = "tiff", width = 7, height = 6, dpi = 700, bg = "white", compression = "lzw")
+    filename = "just_water_exposure.png", path = "figures/", 
+    device = "png", width = 7, height = 6, dpi = 600, bg = "white" #, compression = "lzw"
+    )
 
 
 
